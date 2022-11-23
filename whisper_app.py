@@ -12,7 +12,7 @@ import streamlit as st
 from utils import check_sample_rate, check_mono
 
 from config import APP_DIR, LOCAL_DIR
-from transcriber import Transcription
+from transcriber import Transcriber
 
 #
 # functions
@@ -100,7 +100,7 @@ if transcribe:
         check_file(audio_path)
 
         # added language
-        transcription = Transcription(audio_path, input_type, language)
+        transcriber = Transcriber(audio_path, input_type, language)
 
         t_start = time.time()
 
@@ -109,7 +109,7 @@ if transcribe:
 
         transcription_col.write("Transcription is in progress, please wait...")
 
-        transcription.transcribe(
+        transcriber.transcribe(
             whisper_model,
             temperature,
             temperature_increment_on_fallback,
@@ -119,13 +119,13 @@ if transcribe:
             condition_on_previous_text,
         )
 
-        if transcription:
+        if transcriber:
             # Trim raw transcribed output off tokens to simplify
             raw_output = transcription_col.expander("Raw output")
-            raw_output.write(transcription.raw_output)
+            raw_output.write(transcriber.raw_output)
 
             # Show transcription in a nicer format
-            for segment in transcription.segments:
+            for segment in transcriber.segments:
                 transcription_col.markdown(
                     f"""[{round(segment["start"], 1)} - {round(segment["end"], 1)}] - {segment["text"]}"""
                 )

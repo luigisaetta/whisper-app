@@ -12,7 +12,7 @@ import whisper
 from config import FP16_MODE
 
 
-class Transcription:
+class Transcriber:
     # removed start and duration
     # simplified
     def __init__(self, audio_path, source_type: str, language: str):
