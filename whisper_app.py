@@ -8,6 +8,9 @@ import time
 from PIL import Image
 import streamlit as st
 
+# OpenAI codebase
+import whisper
+
 # some check to make it more robust to human errors in tests
 from utils import check_sample_rate, check_mono, check_file
 
@@ -17,6 +20,18 @@ from transcriber import Transcriber
 #
 # functions
 #
+
+# whisper model is loaded only once
+# limited to best performing models (not fine tuned till now)
+whisper_models = ["medium", "large", "custom"]
+
+@st.experimental_singleton
+def get_whisper_model(model_name):
+    assert model_name in whisper_models, "Model name not supported!"
+
+    model = whisper.load_model(model_name)
+
+    return model
 
 # Set app wide config
 st.set_page_config(
@@ -32,9 +47,6 @@ st.set_page_config(
 
 # list of supported audio files
 audio_supported = ["wav"]
-
-# limited to best performing models (not fine tuned till now)
-whisper_models = ["medium", "large", "custom"]
 
 # add a logo
 image = Image.open(APP_DIR / "logo.png")
@@ -52,7 +64,8 @@ with st.sidebar.form("input_form"):
         # for now only wav supported
         input_file = st.file_uploader("File", type=audio_supported)
 
-    whisper_model = st.selectbox("Whisper model", options=whisper_models, index=1)
+    model_name = st.selectbox("Whisper model", options=whisper_models, index=1)
+    
     extra_configs = st.expander("Extra Configs")
     with extra_configs:
         temperature = st.number_input(
@@ -91,6 +104,9 @@ if transcribe:
     print("Transcription in progress...")
     print()
 
+    # load the whisper model
+    whisper_model = get_whisper_model(model_name)
+
     if input_file:
         # first make a local copy of the file
         print("Making a local copy of input file...")
@@ -114,7 +130,7 @@ if transcribe:
         transcription_col.write("Transcription is in progress, please wait...")
 
         transcriber.transcribe(
-            whisper_model,
+            model_name,
             temperature,
             temperature_increment_on_fallback,
             no_speech_threshold,
