@@ -25,6 +25,7 @@ from transcriber import Transcriber
 # limited to best performing models (not fine tuned till now)
 whisper_models = ["medium", "large", "custom"]
 
+
 @st.experimental_singleton
 def get_whisper_model(model_name):
     assert model_name in whisper_models, "Model name not supported!"
@@ -32,6 +33,7 @@ def get_whisper_model(model_name):
     model = whisper.load_model(model_name)
 
     return model
+
 
 # Set app wide config
 st.set_page_config(
@@ -65,7 +67,7 @@ with st.sidebar.form("input_form"):
         input_file = st.file_uploader("File", type=audio_supported)
 
     model_name = st.selectbox("Whisper model", options=whisper_models, index=1)
-    
+
     extra_configs = st.expander("Extra Configs")
     with extra_configs:
         temperature = st.number_input(
@@ -129,8 +131,9 @@ if transcribe:
 
         transcription_col.write("Transcription is in progress, please wait...")
 
+        # here we pass the model to use, so it is loaded only once
         transcriber.transcribe(
-            model_name,
+            whisper_model,
             temperature,
             temperature_increment_on_fallback,
             no_speech_threshold,

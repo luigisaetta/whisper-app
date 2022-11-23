@@ -1,7 +1,8 @@
 """
 Module that handle a transcription
 
-from https://github.com/hayabhay/whisper-ui
+inspired from from https://github.com/hayabhay/whisper-ui
+but with major changes (to avoid reloading of the model)
 """
 from typing import Union
 
@@ -13,8 +14,8 @@ from config import FP16_MODE
 
 
 class Transcriber:
-    # removed start and duration
-    # simplified
+    # removed start and duration, simplified
+
     def __init__(self, audio_path, source_type: str, language: str):
         # this is now the path to a local copy
         self.audio_path = audio_path
@@ -29,7 +30,7 @@ class Transcriber:
 
     def transcribe(
         self,
-        whisper_model: str,
+        whisper_model,
         temperature: float,
         temperature_increment_on_fallback: float,
         no_speech_threshold: float,
@@ -39,9 +40,6 @@ class Transcriber:
         keep_model_in_memory: bool = True,
     ):
 
-        # Get whisper model
-        transcriber = whisper.load_model(whisper_model)
-
         # Set configs & transcribe
         if temperature_increment_on_fallback is not None:
             temperature = tuple(
@@ -50,7 +48,7 @@ class Transcriber:
         else:
             temperature = [temperature]
 
-        self.raw_output = transcriber.transcribe(
+        self.raw_output = whisper_model.transcribe(
             str(self.audio_path.resolve()),
             temperature=temperature,
             no_speech_threshold=no_speech_threshold,
