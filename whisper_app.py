@@ -30,20 +30,20 @@ st.set_page_config(
     },
 )
 
-# list of supported audio files 
+# list of supported audio files
 audio_supported = ["wav"]
 
 # limited to best performing models (not fine tuned till now)
 whisper_models = ["medium", "large", "custom"]
 
 # add a logo
-image = Image.open(APP_DIR / 'logo.png')
+image = Image.open(APP_DIR / "logo.png")
 
 img_widg = st.sidebar.image(image)
 
 # Render input type selection on the sidebar & the form
 # removed link for now, only local files
-input_type = st.sidebar.selectbox("Input Type", [ "File"])
+input_type = st.sidebar.selectbox("Input Type", ["File"])
 
 with st.sidebar.form("input_form"):
     if input_type == "Link":
@@ -55,17 +55,33 @@ with st.sidebar.form("input_form"):
     whisper_model = st.selectbox("Whisper model", options=whisper_models, index=1)
     extra_configs = st.expander("Extra Configs")
     with extra_configs:
-        temperature = st.number_input("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
+        temperature = st.number_input(
+            "Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1
+        )
         temperature_increment_on_fallback = st.number_input(
-            "Temperature Increment on Fallback", min_value=0.0, max_value=1.0, value=0.2, step=0.2
+            "Temperature Increment on Fallback",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.2,
+            step=0.2,
         )
-        no_speech_threshold = st.slider("No Speech Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.05)
-        logprob_threshold = st.slider("Logprob Threshold", min_value=-20.0, max_value=0.0, value=-1.0, step=0.1)
+        no_speech_threshold = st.slider(
+            "No Speech Threshold", min_value=0.0, max_value=1.0, value=0.6, step=0.05
+        )
+        logprob_threshold = st.slider(
+            "Logprob Threshold", min_value=-20.0, max_value=0.0, value=-1.0, step=0.1
+        )
         compression_ratio_threshold = st.slider(
-            "Compression Ratio Threshold", min_value=0.0, max_value=10.0, value=2.4, step=0.1
+            "Compression Ratio Threshold",
+            min_value=0.0,
+            max_value=10.0,
+            value=2.4,
+            step=0.1,
         )
-        condition_on_previous_text = st.checkbox("Condition on previous text", value=True)
-    
+        condition_on_previous_text = st.checkbox(
+            "Condition on previous text", value=True
+        )
+
     language = st.selectbox("Language", options=["en", "it"], index=0)
 
     transcribe = st.form_submit_button(label="Transcribe")
@@ -82,7 +98,7 @@ if transcribe:
         audio_path = LOCAL_DIR / input_file.name
 
         with open(audio_path, "wb") as f:
-                f.write(input_file.read())
+            f.write(input_file.read())
 
         # check that sample rate and MONO is ok
         check_file(audio_path)
@@ -117,7 +133,7 @@ if transcribe:
                 transcription_col.markdown(
                     f"""[{round(segment["start"], 1)} - {round(segment["end"], 1)}] - {segment["text"]}"""
                 )
-        
+
             # add audio widget to enable to listen to audio
             transcription_col.audio(data=input_file)
 
@@ -127,8 +143,5 @@ if transcribe:
             print(f"Transcription end. Elapsed time: {t_ela} sec.")
             print()
 
-    
     else:
         st.error("Please upload a file!")
-
-    

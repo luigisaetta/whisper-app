@@ -44,10 +44,11 @@ class Transcriber:
 
         # Set configs & transcribe
         if temperature_increment_on_fallback is not None:
-            temperature = tuple(np.arange(temperature, 1.0 + 1e-6, temperature_increment_on_fallback))
+            temperature = tuple(
+                np.arange(temperature, 1.0 + 1e-6, temperature_increment_on_fallback)
+            )
         else:
             temperature = [temperature]
-
 
         self.raw_output = transcriber.transcribe(
             str(self.audio_path.resolve()),
@@ -59,7 +60,7 @@ class Transcriber:
             verbose=True,
             # added (LS)
             language=self.language,
-            fp16=self.fp16
+            fp16=self.fp16,
         )
 
         # For simpler access

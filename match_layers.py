@@ -1,4 +1,3 @@
-
 #
 # Author: L. Saetta (2022)
 # This utility has been used to create and save the map_dict
@@ -17,7 +16,9 @@ print("Loading vanilla Whisper model")
 model = whisper.load_model("medium", device="cpu")
 
 print("Loading vanilla HF Model")
-hugging_face_model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-medium")
+hugging_face_model = WhisperForConditionalGeneration.from_pretrained(
+    "openai/whisper-medium"
+)
 
 # extract state-dict from both
 state_d_standard = model.state_dict()
@@ -37,7 +38,9 @@ for k in tqdm(state_d_standard):
 # check if we have matched every entry
 print(f"Number of keys: {len(map_dict.keys())}")
 print()
-assert len(map_dict.keys()) == len(state_d_standard.keys()), "The match is not complete !"
+assert len(map_dict.keys()) == len(
+    state_d_standard.keys()
+), "The match is not complete !"
 
 print()
 print("Match is complete !!!")
@@ -47,7 +50,7 @@ print()
 print("Serializing map_dict...")
 print()
 FILE_DICT = "map_dict.pkl"
-with open(FILE_DICT, 'wb') as f:
+with open(FILE_DICT, "wb") as f:
     pickle.dump(map_dict, f)
     f.close()
 
@@ -55,13 +58,13 @@ with open(FILE_DICT, 'wb') as f:
 # restart from pickle file
 print("Reloading map_dict...")
 print()
-with open(FILE_DICT, 'rb') as f:
+with open(FILE_DICT, "rb") as f:
     map_dict = pickle.load(f)
 
 # loading fine-tuned dict
 print("Loading fine tuned dict...")
 FINE_TUNED_MODEL = "medium-custom.pt"
-state_dict_finetuned = torch.load(FINE_TUNED_MODEL, map_location=torch.device('cpu'))
+state_dict_finetuned = torch.load(FINE_TUNED_MODEL, map_location=torch.device("cpu"))
 
 # build the state_dict to be used
 # take the key name from standard (OpenAI) and the value from finetuned (HF)
