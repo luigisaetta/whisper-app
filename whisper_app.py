@@ -9,7 +9,7 @@ from PIL import Image
 import streamlit as st
 
 # some check to make it more robust to human errors in tests
-from utils import check_sample_rate, check_mono
+from utils import check_sample_rate, check_mono, check_file
 
 from config import APP_DIR, LOCAL_DIR
 from transcriber import Transcriber
@@ -17,18 +17,6 @@ from transcriber import Transcriber
 #
 # functions
 #
-def check_file(audio_path):
-    if check_sample_rate(audio_path) == False:
-        print("The sample rate is not 16000 HZ.")
-    else:
-        print("Sample rate is 16000 HZ, OK.")
-
-    # check file is MONO
-    if check_mono(audio_path) == False:
-        print("The file is NOT MONO.")
-    else:
-        print("File is MONO, OK.")
-        print()
 
 # Set app wide config
 st.set_page_config(
