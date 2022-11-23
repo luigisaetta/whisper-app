@@ -1,3 +1,9 @@
+
+#
+# Author: L. Saetta (2022)
+# This utility has been used to create and save the map_dict
+# used to load a custom-trained model into the Whisper codebase
+#
 import whisper
 from transformers import WhisperForConditionalGeneration
 import torch
