@@ -67,14 +67,19 @@ def extract_layer_num(key_name):
 
     return layer_num
 
-
+# check that teh two keys are for layers with the same function (encoder-encoder)
+# and have the same layer number
+#this way we are super-safe (I think)
 def sanity_check(key1, key2):
+    is_ok = True
+
     # check same func (encoder or decoder)
     func1 = extract_function(key1)
     func2 = extract_function(key2)
 
     if func1 != func2:
         print(f"Warning: layers seem to have different functions: {key1},{key2}")
+        is_ok = False
 
     # check same layer_num
     layer1 = extract_layer_num(key1)
@@ -82,7 +87,9 @@ def sanity_check(key1, key2):
 
     if layer1 != layer2:
         print(f"Warning: layers seem to have different numbers: {key1},{key2}")
+        is_ok = False
 
+    return is_ok
 
 #
 # Main
@@ -92,6 +99,7 @@ if DDP_TRAINED:
 else:
     PREFIX = ""
 
+# Vanilla means: not custom trained
 print()
 print("Loading vanilla Whisper model")
 model = whisper.load_model(MODEL_SIZE, device=DEVICE)
@@ -102,39 +110,51 @@ hugging_face_model = WhisperForConditionalGeneration.from_pretrained(
 )
 
 # extract state-dict from both
-state_d_standard = model.state_dict()
+state_d_openai = model.state_dict()
 state_d_huggingface = hugging_face_model.model.state_dict()
 
 # build the mapping between keys...
 map_dict = {}
 print("Matching layers...")
 
-for k in tqdm(state_d_standard):
+# for every layer in OpenAI model
+n_sanity_ok = 0
+
+for k in tqdm(state_d_openai):
+    # find a layer in the HF model 
     for j in state_d_huggingface:
-        if state_d_huggingface[j].shape == state_d_standard[k].shape:
-            if torch.all(torch.eq(state_d_huggingface[j], state_d_standard[k])).item():
+        # where parameters have same shape and same values
+        if state_d_huggingface[j].shape == state_d_openai[k].shape:
+            if torch.all(torch.eq(state_d_huggingface[j], state_d_openai[k])).item():
+                # found, register the mapping
                 map_dict[k] = j
                 # make some check and eventually print a warning
-                sanity_check(k, j)
+                if sanity_check(k, j) == True:
+                    n_sanity_ok += 1
+
                 break
 
 # check if we have matched every entry
 print(f"Number of keys: {len(map_dict.keys())}")
-print()
 assert len(map_dict.keys()) == len(
-    state_d_standard.keys()
+    state_d_openai.keys()
 ), "The match is not complete !"
+
+print(f"Number of sanity_check ok: {n_sanity_ok}")
+print()
 
 print("Match is complete !!!")
 print()
 
 # serialize the map_dict to file
 print("Serializing map_dict...")
-print()
 
 with open(FILE_DICT, "wb") as f:
     pickle.dump(map_dict, f)
     f.close()
+
+print(f"map_dict saved as: {FILE_DICT}...")
+print()
 
 #
 # In this section we do a test to see if the model can be actually loaded
