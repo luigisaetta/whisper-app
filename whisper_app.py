@@ -1,12 +1,17 @@
 #
 # Whisper UI with Streamlit
 # some inspiration from https://github.com/hayabhay/whisper-ui
+# 
+# v 2.0: removed hack to lad Whisper custom model
 #
 
 import os
 import time
+import pickle
+from tqdm import tqdm
 from PIL import Image
 import streamlit as st
+import torch
 
 # OpenAI codebase
 import whisper
@@ -25,12 +30,53 @@ from transcriber import Transcriber
 # limited to best performing models (not fine tuned till now)
 whisper_models = ["medium", "large", "custom"]
 
+# the name of the file for the serialized map_dict
+FILE_DICT = "map_dict.pkl"
+# the name of the file with your fine-tuned model
+FINE_TUNED_MODEL = "medium-custom.pt"
 
 @st.experimental_singleton
 def get_whisper_model(model_name):
     assert model_name in whisper_models, "Model name not supported!"
 
-    model = whisper.load_model(model_name)
+    model = None
+
+    if model_name != "custom":
+        model = whisper.load_model(model_name)
+    else:
+        # handle here custom model loading
+        print("Loading vanilla Whisper model")
+        model = whisper.load_model("medium", device="cpu")
+
+        print("Reloading map_dict...")
+        print()
+        with open(FILE_DICT, "rb") as f:
+            map_dict = pickle.load(f)   
+            print(f"Num. keys loaded: {len(map_dict.keys())}")
+        # loading fine-tuned dict
+        print("Loading fine tuned dict...")
+        # added map_location to handle the fact that the custom model has been trained on GPU
+        state_dict_finetuned = torch.load(FINE_TUNED_MODEL, map_location=torch.device("cpu"))
+
+        # build the state_dict to be used
+        # take the key name from standard (OpenAI) and the value from finetuned (HF)
+        print("Rebuild the state dict...")
+        PREFIX = "model."
+        new_state_dict = {}
+        n_except = 0
+        for k in tqdm(map_dict.keys()):
+            try:
+                # must add "model." because I come from DDP
+                new_state_dict[k] = state_dict_finetuned[PREFIX + map_dict[k]]
+            except:
+                n_except += 1
+
+        assert n_except == 0, "Rebuild state dict failed"
+
+        print()
+        print("Loading the final model...")
+        model.load_state_dict(new_state_dict)
+        print()
 
     return model
 
@@ -46,6 +92,7 @@ st.set_page_config(
         "About": "This is a UI for OpenAI's Whisper.",
     },
 )
+
 
 # list of supported audio files
 audio_supported = ["wav"]
