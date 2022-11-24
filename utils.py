@@ -43,9 +43,9 @@ def check_mono(file_wav_name):
 
 def check_file(audio_path):
     if check_sample_rate(audio_path) == False:
-        print("The sample rate is not 16000 HZ.")
+        print("The sample rate is not 16000 Hz.")
     else:
-        print("Sample rate is 16000 HZ, OK.")
+        print("Sample rate is 16000 Hz, OK.")
 
     # check file is MONO
     if check_mono(audio_path) == False:
