@@ -1,7 +1,7 @@
 #
 # Whisper UI with Streamlit
 # some inspiration from https://github.com/hayabhay/whisper-ui
-# 
+#
 # v 2.0: removed hack to lad Whisper custom model
 #
 
@@ -27,13 +27,36 @@ from transcriber import Transcriber
 #
 
 # whisper model is loaded only once
-# limited to best performing models (not fine tuned till now)
-whisper_models = ["medium", "large", "custom"]
+# limited to best performing models
+# custom is: medium, fine tuned
+# medium, large are vanilla Whisper models
+# for custom, you must provide a FINE_TUNED_MODEL file
+# in the dir where the app file is launched
+whisper_models = ["custom", "medium", "large"]
 
 # the name of the file for the serialized map_dict
 FILE_DICT = "map_dict.pkl"
 # the name of the file with your fine-tuned model
 FINE_TUNED_MODEL = "medium-custom.pt"
+
+
+def rebuild_state_dict(prefix, map_dict, state_dict_finetuned):
+    # prefix could be model. or empty
+    print("Rebuild the state dict...")
+
+    new_state_dict = {}
+    n_except = 0
+    for k in tqdm(map_dict.keys()):
+        try:
+            # must add "model." because I come from DDP
+            new_state_dict[k] = state_dict_finetuned[prefix + map_dict[k]]
+        except:
+            n_except += 1
+
+    assert n_except == 0, "Rebuild state dict failed"
+
+    return new_state_dict
+
 
 @st.experimental_singleton
 def get_whisper_model(model_name):
@@ -44,37 +67,32 @@ def get_whisper_model(model_name):
     if model_name != "custom":
         model = whisper.load_model(model_name)
     else:
-        # handle here custom model loading
+        # handle here custom (fine-tuned) model loading
+
+        # this is needed to get Dims correctly
         print("Loading vanilla Whisper model")
         model = whisper.load_model("medium", device="cpu")
 
         print("Reloading map_dict...")
         print()
         with open(FILE_DICT, "rb") as f:
-            map_dict = pickle.load(f)   
-            print(f"Num. keys loaded: {len(map_dict.keys())}")
+            map_dict = pickle.load(f)
+
         # loading fine-tuned dict
         print("Loading fine tuned dict...")
         # added map_location to handle the fact that the custom model has been trained on GPU
-        state_dict_finetuned = torch.load(FINE_TUNED_MODEL, map_location=torch.device("cpu"))
+        state_dict_finetuned = torch.load(
+            FINE_TUNED_MODEL, map_location=torch.device("cpu")
+        )
 
-        # build the state_dict to be used
+        # build the new state_dict to be used
         # take the key name from standard (OpenAI) and the value from finetuned (HF)
-        print("Rebuild the state dict...")
-        PREFIX = "model."
-        new_state_dict = {}
-        n_except = 0
-        for k in tqdm(map_dict.keys()):
-            try:
-                # must add "model." because I come from DDP
-                new_state_dict[k] = state_dict_finetuned[PREFIX + map_dict[k]]
-            except:
-                n_except += 1
 
-        assert n_except == 0, "Rebuild state dict failed"
+        PREFIX = "model."
+        new_state_dict = rebuild_state_dict(PREFIX, map_dict, state_dict_finetuned)
 
         print()
-        print("Loading the final model...")
+        print("Loading the fine tuned model state...")
         model.load_state_dict(new_state_dict)
         print()
 
@@ -113,7 +131,7 @@ with st.sidebar.form("input_form"):
         # for now only wav supported
         input_file = st.file_uploader("File", type=audio_supported)
 
-    model_name = st.selectbox("Whisper model", options=whisper_models, index=1)
+    model_name = st.selectbox("Whisper model", options=whisper_models, index=0)
 
     extra_configs = st.expander("Extra Configs")
     with extra_configs:
@@ -149,65 +167,63 @@ with st.sidebar.form("input_form"):
     transcribe = st.form_submit_button(label="Transcribe")
 
 if transcribe:
-    print()
-    print("Transcription in progress...")
-    print()
-
-    # load the whisper model
+    # load the whisper model (only the first time)
     whisper_model = get_whisper_model(model_name)
 
+    # Render transcriptions
+    transcription_col, media_col = st.columns(2, gap="large")
+
     if input_file:
-        # first make a local copy of the file
-        print("Making a local copy of input file...")
+        with st.spinner("Transcription in progress..."):
+            
+            t_start = time.time()
 
-        audio_path = LOCAL_DIR / input_file.name
+            # first make a local copy of the file
+            print("Making a local copy of input file...")
 
-        with open(audio_path, "wb") as f:
-            f.write(input_file.read())
+            audio_path = LOCAL_DIR / input_file.name
 
-        # check that sample rate and MONO is ok
-        check_file(audio_path)
+            with open(audio_path, "wb") as f:
+                f.write(input_file.read())
 
-        # added language
-        transcriber = Transcriber(audio_path, input_type, language)
+            # check that sample rate and MONO is ok
+            check_file(audio_path)
 
-        t_start = time.time()
+            # added language
+            transcriber = Transcriber(audio_path, input_type, language)
 
-        # Render transcriptions
-        transcription_col, media_col = st.columns(2, gap="large")
+            transcription_col.write("The transcription:")
 
-        transcription_col.write("Transcription is in progress, please wait...")
+            # here we pass the model to use, so it is loaded only once
+            transcriber.transcribe(
+                whisper_model,
+                temperature,
+                temperature_increment_on_fallback,
+                no_speech_threshold,
+                logprob_threshold,
+                compression_ratio_threshold,
+                condition_on_previous_text,
+            )
 
-        # here we pass the model to use, so it is loaded only once
-        transcriber.transcribe(
-            whisper_model,
-            temperature,
-            temperature_increment_on_fallback,
-            no_speech_threshold,
-            logprob_threshold,
-            compression_ratio_threshold,
-            condition_on_previous_text,
-        )
+            if transcriber:
+                # Show transcription in a nicer format
+                for segment in transcriber.segments:
+                    transcription_col.markdown(
+                        f"""[{round(segment["start"], 1)} - {round(segment["end"], 1)}] - {segment["text"]}"""
+                    )
 
-        if transcriber:
-            # Trim raw transcribed output off tokens to simplify
-            raw_output = transcription_col.expander("Raw output")
-            raw_output.write(transcriber.raw_output)
+                # add audio widget to enable to listen to audio
+                transcription_col.audio(data=input_file)
 
-            # Show transcription in a nicer format
-            for segment in transcriber.segments:
-                transcription_col.markdown(
-                    f"""[{round(segment["start"], 1)} - {round(segment["end"], 1)}] - {segment["text"]}"""
-                )
+                # Trim raw transcribed output off tokens to simplify
+                raw_output = transcription_col.expander("Raw output")
+                raw_output.write(transcriber.raw_output)
 
-            # add audio widget to enable to listen to audio
-            transcription_col.audio(data=input_file)
+                t_ela = round(time.time() - t_start, 1)
 
-            t_ela = round(time.time() - t_start, 1)
-
-            print()
-            print(f"Transcription end. Elapsed time: {t_ela} sec.")
-            print()
+                print()
+                print(f"Transcription end. Elapsed time: {t_ela} sec.")
+                print()
 
     else:
         st.error("Please upload a file!")

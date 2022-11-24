@@ -67,9 +67,10 @@ def extract_layer_num(key_name):
 
     return layer_num
 
+
 # check that teh two keys are for layers with the same function (encoder-encoder)
 # and have the same layer number
-#this way we are super-safe (I think)
+# this way we are super-safe (I think)
 def sanity_check(key1, key2):
     is_ok = True
 
@@ -90,6 +91,7 @@ def sanity_check(key1, key2):
         is_ok = False
 
     return is_ok
+
 
 #
 # Main
@@ -121,7 +123,7 @@ print("Matching layers...")
 n_sanity_ok = 0
 
 for k in tqdm(state_d_openai):
-    # find a layer in the HF model 
+    # find a layer in the HF model
     for j in state_d_huggingface:
         # where parameters have same shape and same values
         if state_d_huggingface[j].shape == state_d_openai[k].shape:
@@ -136,9 +138,7 @@ for k in tqdm(state_d_openai):
 
 # check if we have matched every entry
 print(f"Number of keys: {len(map_dict.keys())}")
-assert len(map_dict.keys()) == len(
-    state_d_openai.keys()
-), "The match is not complete !"
+assert len(map_dict.keys()) == len(state_d_openai.keys()), "The match is not complete !"
 
 print(f"Number of sanity_check ok: {n_sanity_ok}")
 print()
