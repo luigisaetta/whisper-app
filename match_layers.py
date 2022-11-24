@@ -21,6 +21,7 @@ import pickle
 # as in my case, in the custom HF model, keys have a prefix (model.)
 # it should come from the fact that I have trained on a milti-gpu machine, using DDP
 DDP_TRAINED = True
+
 # for now, tested only with medium
 MODEL_SIZE = "medium"
 
@@ -36,16 +37,16 @@ FILE_DICT = "map_dict.pkl"
 #
 # functions
 #
-# get if it is encoder or decoder
-def has_numbers(inputString):
-    return any(char.isdigit() for char in inputString)
-
-
-# the following 3 func have been added to make more check on the matching layers
+# the following 3 func have been added to make more checks on the matching layers
 # I check that are both from the same module (encoder or decoder)
 # and with the same number
 
 
+def has_numbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
+
+# get if it is encoder or decoder
 def extract_function(key_name):
     # encoder or decoder is the first part of the key
     first_part = key_name.split(".")[0]
