@@ -10,6 +10,37 @@ APP_DIR = pathlib.Path(__file__).parent.absolute()
 LOCAL_DIR = APP_DIR / "local"
 LOCAL_DIR.mkdir(exist_ok=True)
 
+LOGO = "logo.png"
+
+AUDIO_FORMAT_SUPPORTED = ["wav"]
+LANG_SUPPORTED = ["en", "it"]
+
+# could be cpu or cuda (or mps?)
+DEVICE = "cpu"
+
 # set to True if you have a NVIDIA GPU
 # set to False on CPU to avoid warnings
 FP16_MODE = False
+
+# for custom models:
+
+# prefix to be eventually added to key in rebuild_state_dict
+# this one is if the custom model has been traned with gpu
+PREFIX = "model."
+
+# the name of the file for the serialized map_dict
+FILE_DICT = "map_dict.pkl"
+# the name of the file with your fine-tuned model
+FINE_TUNED_MODEL = "medium-custom.pt"
+
+# sample_rate expected in Hz
+SAMPLE_RATE = 16000
+
+# to enable comparison with target
+COMPARE_MODE = True
+
+# this file contains the expected sentences
+TARGET_FILE = "atco2.csv"
+
+# to show the section for setting extra configs
+ENABLE_EXTRA_CONFIGS = False

@@ -4,7 +4,7 @@
 #
 import pandas as pd
 import soundfile as sf
-
+from config import SAMPLE_RATE
 
 #
 # check sample rate... normally we're working with 16000
@@ -38,10 +38,10 @@ def check_mono(file_wav_name):
 
 
 def check_file(audio_path):
-    if check_sample_rate(audio_path) == False:
-        print("The sample rate is not 16000 Hz.")
+    if check_sample_rate(audio_path, ref_sample_rate=SAMPLE_RATE) == False:
+        print(f"The sample rate is not {SAMPLE_RATE} Hz.")
     else:
-        print("Sample rate is 16000 Hz, OK.")
+        print(f"Sample rate is {SAMPLE_RATE} Hz, OK.")
 
     # check file is MONO
     if check_mono(audio_path) == False:
