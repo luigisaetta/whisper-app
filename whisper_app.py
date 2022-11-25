@@ -2,7 +2,7 @@
 # Whisper UI with Streamlit
 # some inspiration from https://github.com/hayabhay/whisper-ui
 #
-# v 2.0: removed hack to lad Whisper custom model
+# v 2.0: removed hack to load Whisper custom model
 # added also compare mode, where it loads form a csv file the expected sentences
 # that are shown on the right
 #
