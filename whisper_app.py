@@ -13,9 +13,7 @@ import pandas as pd
 import streamlit as st
 
 # OpenAI codebase
-import whisper
-
-# to normalize the expected sentence
+# to normalize the expected sentenceand easy comparison
 from whisper import normalizers
 
 # some check to make it more robust to human errors in tests
@@ -68,6 +66,7 @@ def load_target_csv(f_name):
         target_dict[k] = v
 
     return target_dict
+
 
 # Whisper English normalizer
 @st.experimental_singleton

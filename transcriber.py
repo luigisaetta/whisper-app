@@ -125,7 +125,7 @@ class Transcriber:
             language=language,
             fp16=self.fp16,
             # added 25/11/2022
-            task="transcribe"
+            task="transcribe",
         )
 
         # For simpler access
