@@ -2,7 +2,8 @@
 This repository contains all the work I have done (and I'm doing) in developing a web app for **Speech-to-text**, based on **OpenAI Whisper**
 
 ## Updates
-* 24/11/2022: ****no need** anymore to change the Whisper codebase to load the custom model
+* 24/11/2022: **no need** anymore to change the Whisper codebase to load the custom model
+* 25/11/2022: clean separation between frontend and backend
 
 ## Utility
 * match_layers
@@ -18,4 +19,10 @@ In this case, the utility can be used to match and show how to load the custom t
 * Streamlit
 * soundfile
 * tqdm
+* pickle
+* pandas
+* PIL
+
+
+
 
