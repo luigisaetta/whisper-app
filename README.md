@@ -7,11 +7,18 @@ This repository contains all the work I have done (and I'm doing) in developing 
 * 24/11/2022: **no need** anymore to change the Whisper codebase to load the custom model
 * 25/11/2022: clean separation between frontend and backend
 
+## Features
+* You can load and use a **custom trained model**, using HF Transformers
+* You can **enable comparison** of the transcription with **expected** text, providing a csv file (f_name, sentence)
+* supported model: medium, large (vanilla) and medium for custom
+
 ## Utility
 * match_layers
 
 One common use case could be that we're fine-tuning a Whisper model, for example to have higher accuracy on a special domain's language.
+
 The fine tuning can be done using **HF Transformers**. 
+
 In this case, the utility can be used to match and show how to load the custom tuned model in **Whisper codebase**.
 
 ## Libraries used
@@ -24,6 +31,11 @@ In this case, the utility can be used to match and show how to load the custom t
 * pickle
 * pandas
 * PIL
+
+## Environment
+* based on Python 3.10.6
+* can be rebuilt using the provided requirements.txt
+
 
 
 
