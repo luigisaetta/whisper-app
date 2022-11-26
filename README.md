@@ -10,7 +10,8 @@ This repository contains all the work I have done (and I'm doing) in developing 
 ## Features
 * You can load and use a **custom trained model**, using HF Transformers
 * You can **enable comparison** of the transcription with **expected** text, providing a csv file (f_name, sentence)
-* supported model: medium, large (vanilla) and medium for custom
+* You can run on a GPU, and it is way faster
+* supported models: medium, large (vanilla) and medium for custom
 
 ## Utility
 * match_layers
