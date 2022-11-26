@@ -42,17 +42,17 @@ I have tested and the code works fine on a VM equipped with:
 * Ubuntu 22.04-2022.11.06
 * Python 3.10
 
-To enable the code to run on GPU you need only to set 
+To enable the code to run on GPU you need only to set:
 ```
 DEVICE = cuda 
 ```
 in config file.
 
-It is obviously much faster running on GPU, especially with long file (> 120 sec.)
+It is, obviously, much faster running on GPU, especially with long files (> 60 sec.)
 
 In this table I report the results of two tests done, enabling and disabling the GPU:
 
-| Test n. | Audio dur. in sec. | time on CPU (s.) | time on GPU )s.) |
+| Test n. | Audio dur. in sec. | time on CPU (s.) | time on GPU (s.) |
 | ------- | ------------- | ------------- | ------------- |
 |       1 | 129 | 55  |   11 |
 |       2 | 255 | 110 | 19.8 |
