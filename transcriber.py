@@ -20,7 +20,7 @@ class Transcriber:
     # removed start and duration, simplified
 
     def __init__(self, model_name):
-        # enable eventually fp16 mode (to avoid warnings on cpu)
+        # disable/enable eventually fp16 mode (to avoid warnings on cpu)
         # read in config.py
         self.fp16 = FP16_MODE
 
@@ -28,7 +28,7 @@ class Transcriber:
         self.model = self.get_whisper_model(model_name)
 
     # needed for custom models
-    # used by get_whisper_model
+    # used by get_whisper_model()
     def rebuild_state_dict(self, prefix, map_dict, state_dict_finetuned):
         # prefix could be model. or empty
         print("Rebuild the state dict...")
