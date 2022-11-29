@@ -17,6 +17,10 @@ import pickle
 #
 # Configuration
 #
+
+# to enable verbose printing of exceptions
+DEBUG = False
+
 # set to True if the custom model has been trained using DDP (multi-gpu)
 # as in my case, in the custom HF model, keys have a prefix (model.)
 # it should come from the fact that I have trained on a milti-gpu machine, using DDP
@@ -30,6 +34,7 @@ DEVICE = "cpu"
 
 # the name of the file with your fine-tuned model
 FINE_TUNED_MODEL = "medium-custom.pt"
+
 
 # the name of the file for the serialized map_dict
 FILE_DICT = "map_dict.pkl"
@@ -181,12 +186,18 @@ new_state_dict = {}
 n_except = 0
 for k in tqdm(map_dict.keys()):
     try:
-        # must add "model." because I come from DDP
+        # You must add "model." if you have used DDP in custom training
+        # see DDP_TRAINED above
         new_state_dict[k] = state_dict_finetuned[PREFIX + map_dict[k]]
     except:
         n_except += 1
 
-assert n_except == 0, "Rebuild state dict failed"
+        if DEBUG:
+            print(PREFIX + map_dict[k])
+
+# print(state_dict_finetuned)
+msg_err = f"Rebuild state dict failed, {n_except} pick failed"
+assert n_except == 0, msg_err
 
 print()
 print("Loading the final model...")
