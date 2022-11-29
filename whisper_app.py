@@ -23,6 +23,9 @@ from config import APP_DIR, LOCAL_DIR, LOGO, COMPARE_MODE
 from config import AUDIO_FORMAT_SUPPORTED, LANG_SUPPORTED
 from config import TARGET_FILE, ENABLE_EXTRA_CONFIGS
 
+# default for extra_configs
+from config import TIOF_DEFAULT, NST_DEFAULT, LPT_DEFAULT, CRT_DEFAULT, TEMP_DEFAULT
+
 from transcriber import Transcriber
 
 # whisper model is loaded only once
@@ -116,46 +119,50 @@ with st.sidebar.form("input_form"):
         extra_configs = st.expander("Extra Configs")
         with extra_configs:
             temperature = st.number_input(
-                "Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1
+                "Temperature", 
+                min_value=TEMP_DEFAULT[0], 
+                max_value=TEMP_DEFAULT[1], 
+                value=TEMP_DEFAULT[2], 
+                step=TEMP_DEFAULT[3]
             )
             temperature_increment_on_fallback = st.number_input(
                 "Temperature Increment on Fallback",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.2,
-                step=0.2,
+                min_value=TIOF_DEFAULT[0],
+                max_value=TIOF_DEFAULT[1],
+                value=TIOF_DEFAULT[2],
+                step=TIOF_DEFAULT[3],
             )
             no_speech_threshold = st.slider(
                 "No Speech Threshold",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.6,
-                step=0.05,
+                min_value=NST_DEFAULT[0],
+                max_value=NST_DEFAULT[1],
+                value=NST_DEFAULT[2],
+                step=NST_DEFAULT[3],
             )
             logprob_threshold = st.slider(
                 "Logprob Threshold",
-                min_value=-20.0,
-                max_value=0.0,
-                value=-1.0,
-                step=0.1,
+                min_value=LPT_DEFAULT[0],
+                max_value=LPT_DEFAULT[1],
+                value=LPT_DEFAULT[2],
+                step=LPT_DEFAULT[3],
             )
             compression_ratio_threshold = st.slider(
                 "Compression Ratio Threshold",
-                min_value=0.0,
-                max_value=10.0,
-                value=2.4,
-                step=0.1,
+                min_value=CRT_DEFAULT[0],
+                max_value=CRT_DEFAULT[1],
+                value=CRT_DEFAULT[2],
+                step=CRT_DEFAULT[3],
             )
             condition_on_previous_text = st.checkbox(
                 "Condition on previous text", value=True
             )
     else:
         # setting defaults (be careful, changes can make it really worse)
-        temperature = 0.0
-        temperature_increment_on_fallback = 0.2
-        no_speech_threshold = 0.6
-        logprob_threshold = -1.0
-        compression_ratio_threshold = 2.4
+        temperature = TEMP_DEFAULT[2]
+        temperature_increment_on_fallback = TIOF_DEFAULT[2]
+        no_speech_threshold = NST_DEFAULT[2]
+        logprob_threshold = LPT_DEFAULT[2]
+        compression_ratio_threshold = CRT_DEFAULT[2]
         condition_on_previous_text = True
 
     language = st.selectbox("Language", options=LANG_SUPPORTED, index=0)

@@ -44,3 +44,21 @@ TARGET_FILE = "atco2.csv"
 
 # to show the section for setting extra configs
 ENABLE_EXTRA_CONFIGS = False
+
+# default for EXTRA_CONFIGS
+
+# temperature defaults
+TEMP_DEFAULT = [0.0, 1.0, 0.0, 0.1]
+
+# temperature_increment_on_fallback
+TIOF_DEFAULT = [0.0, 1.0, 0.2, 0.2]
+
+# no_speech_threshold
+NST_DEFAULT = [0.0, 1.0, 0.6, 0.05]
+
+# logprob_threshold
+LPT_DEFAULT = [-20.0, 0.0, -1.0, 0.1]
+
+# compression_ratio_threshold
+CRT_DEFAULT = [0.0, 10.0, 2.4, 0.1]
+
