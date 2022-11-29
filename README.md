@@ -16,11 +16,13 @@ This repository contains all the work I have done (and I'm doing) in developing 
 ## Utility
 * match_layers
 
-One common use case could be that we're fine-tuning a Whisper model, for example to have higher accuracy on a special domain's language.
+One common use case could be that we're **fine-tuning** a Whisper model, for example to have higher accuracy on a special domain's language.
 
-The fine tuning can be done using **HF Transformers**. 
+The fine tuning can be done using **HF Transformers**, using the approach described [here](https://huggingface.co/blog/fine-tune-whisper).
 
 In this case, the utility can be used to match and show how to load the custom tuned model in **Whisper codebase**.
+
+You can find some more information on this utility in the **Wiki**.
 
 ## Libraries used
 * Torch
