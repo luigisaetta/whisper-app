@@ -1,6 +1,6 @@
 # Whisper-App
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)(https://www.python.org/downloads/release/python-3100/)
 
 This repository contains all the work I have done (and I'm doing) in developing a web app for **Speech-to-text**, based on **OpenAI Whisper**
 
