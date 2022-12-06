@@ -11,6 +11,7 @@ import time
 from PIL import Image
 import pandas as pd
 import streamlit as st
+from annotated_text import annotated_text
 
 # OpenAI codebase
 # to normalize the expected sentenceand easy comparison
@@ -77,6 +78,24 @@ def get_normalizer():
     normalizer = normalizers.EnglishTextNormalizer()
 
     return normalizer
+
+
+def compare(transcribed_text, expected_text):
+    color = "#8ef"
+    # tokenize to get individual words
+    tokenized = transcribed_text.split(" ")
+
+    new_word_with_annotation = []
+
+    for word in tokenized:
+        word = word.strip()
+        if word not in expected_text:
+            # annotate
+            new_word_with_annotation.append((word + " ", "doubt", color))
+        else:
+            new_word_with_annotation.append(word + " ")
+
+    return new_word_with_annotation
 
 
 # Set app wide config
@@ -238,8 +257,34 @@ if transcribe:
             # if we want to show also
             # the expected text
             if compare_mode == "Yes":
-                media_col.subheader("The expected text:")
-                media_col.write(normalizer(target_dict[input_file.name]))
+                # for comparison do the same normalization
+                transcribed_txt = normalizer(transcriber.text)
+                
+                expected_txt = None
+                try:
+                    expected_txt = normalizer(target_dict[input_file.name])
+
+                except:
+                    # to handle the case not found
+                    print(f"Expected text not found: {input_file.name}...")
+                    print()
+
+                # annotate word in transcribed but not in expected
+                if expected_txt is not None:
+                    word_annotated = compare(transcribed_txt, expected_txt)
+                else:
+                    word_annotated = [transcribed_txt]
+
+                media_col.subheader("Transcribed vs expected text:")
+
+                with media_col:
+                    # we need the magical *
+                    annotated_text(*word_annotated)
+
+                media_col.write("")
+                media_col.write("Expected text is: ")
+                if expected_txt is not None:
+                    media_col.write(expected_txt)
 
     else:
         st.error("Please upload a file!")
