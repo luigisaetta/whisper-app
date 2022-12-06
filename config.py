@@ -22,6 +22,13 @@ DEVICE = "cpu"
 # set to False on CPU to avoid warnings
 FP16_MODE = False
 
+# model supported
+# custom is: medium, HF fine tuned
+# medium, large are vanilla Whisper models
+# for custom, you must provide a FINE_TUNED_MODEL file
+# in the dir where the app file is launched
+WHISPER_MODEL_SUPPORTED = ["custom", "medium", "large"]
+
 # for custom models:
 
 # prefix to be eventually added to key in rebuild_state_dict
@@ -61,4 +68,3 @@ LPT_DEFAULT = [-20.0, 0.0, -1.0, 0.1]
 
 # compression_ratio_threshold
 CRT_DEFAULT = [0.0, 10.0, 2.4, 0.1]
-

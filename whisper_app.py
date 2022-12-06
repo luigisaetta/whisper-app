@@ -1,6 +1,5 @@
 #
 # Whisper UI with Streamlit
-# some inspiration from https://github.com/hayabhay/whisper-ui
 #
 # v 2.0: removed hack to load Whisper custom model
 # added also compare mode, where it loads form a csv file the expected sentences
@@ -14,7 +13,7 @@ import streamlit as st
 from annotated_text import annotated_text
 
 # OpenAI codebase
-# to normalize the expected sentenceand easy comparison
+# to normalize the expected sentence and easier comparison
 from whisper import normalizers
 
 # some check to make it more robust to human errors in tests
@@ -23,6 +22,7 @@ from utils import check_file
 from config import APP_DIR, LOCAL_DIR, LOGO, COMPARE_MODE
 from config import AUDIO_FORMAT_SUPPORTED, LANG_SUPPORTED
 from config import TARGET_FILE, ENABLE_EXTRA_CONFIGS
+from config import WHISPER_MODEL_SUPPORTED
 
 # default for extra_configs
 from config import TIOF_DEFAULT, NST_DEFAULT, LPT_DEFAULT, CRT_DEFAULT, TEMP_DEFAULT
@@ -34,7 +34,7 @@ from transcriber import Transcriber
 # medium, large are vanilla Whisper models
 # for custom, you must provide a FINE_TUNED_MODEL file
 # in the dir where the app file is launched
-whisper_models = ["custom", "medium", "large"]
+whisper_models = WHISPER_MODEL_SUPPORTED
 
 #
 # Here we load once the transcriber class and therefore the Whisper model
@@ -80,6 +80,7 @@ def get_normalizer():
     return normalizer
 
 
+# compare and annotate transcription vs expected text
 def compare(transcribed_text, expected_text):
     color = "#8ef"
     # tokenize to get individual words
@@ -96,6 +97,37 @@ def compare(transcribed_text, expected_text):
             new_word_with_annotation.append(word + " ")
 
     return new_word_with_annotation
+
+
+#
+# to simplify settings of st.number_input
+# see below extra_configs
+#
+def set_st_number_input(label, defaults):
+    nb_input = st.number_input(
+        label,
+        min_value=defaults[0],
+        max_value=defaults[1],
+        value=defaults[2],
+        step=defaults[3],
+    )
+
+    return nb_input
+
+
+#
+# to simplify settings of st.slider
+#
+def set_st_slider(label, defaults):
+    st_slider = st.slider(
+        label,
+        min_value=defaults[0],
+        max_value=defaults[1],
+        value=defaults[2],
+        step=defaults[3],
+    )
+
+    return st_slider
 
 
 # Set app wide config
@@ -136,42 +168,23 @@ with st.sidebar.form("input_form"):
     # but you can enable in config.py
     if ENABLE_EXTRA_CONFIGS:
         extra_configs = st.expander("Extra Configs")
+
         with extra_configs:
-            temperature = st.number_input(
-                "Temperature", 
-                min_value=TEMP_DEFAULT[0], 
-                max_value=TEMP_DEFAULT[1], 
-                value=TEMP_DEFAULT[2], 
-                step=TEMP_DEFAULT[3]
+            # defaults are in config.py
+            temperature = set_st_number_input("Temperature", TEMP_DEFAULT)
+
+            temperature_increment_on_fallback = set_st_number_input(
+                "Temperature Increment on Fallback", TIOF_DEFAULT
             )
-            temperature_increment_on_fallback = st.number_input(
-                "Temperature Increment on Fallback",
-                min_value=TIOF_DEFAULT[0],
-                max_value=TIOF_DEFAULT[1],
-                value=TIOF_DEFAULT[2],
-                step=TIOF_DEFAULT[3],
+
+            no_speech_threshold = set_st_slider("No Speech Threshold", NST_DEFAULT)
+
+            logprob_threshold = set_st_slider("Logprob Threshold", LPT_DEFAULT)
+
+            compression_ratio_threshold = set_st_slider(
+                "Compression Ratio Threshold", CRT_DEFAULT
             )
-            no_speech_threshold = st.slider(
-                "No Speech Threshold",
-                min_value=NST_DEFAULT[0],
-                max_value=NST_DEFAULT[1],
-                value=NST_DEFAULT[2],
-                step=NST_DEFAULT[3],
-            )
-            logprob_threshold = st.slider(
-                "Logprob Threshold",
-                min_value=LPT_DEFAULT[0],
-                max_value=LPT_DEFAULT[1],
-                value=LPT_DEFAULT[2],
-                step=LPT_DEFAULT[3],
-            )
-            compression_ratio_threshold = st.slider(
-                "Compression Ratio Threshold",
-                min_value=CRT_DEFAULT[0],
-                max_value=CRT_DEFAULT[1],
-                value=CRT_DEFAULT[2],
-                step=CRT_DEFAULT[3],
-            )
+
             condition_on_previous_text = st.checkbox(
                 "Condition on previous text", value=True
             )
@@ -259,7 +272,7 @@ if transcribe:
             if compare_mode == "Yes":
                 # for comparison do the same normalization
                 transcribed_txt = normalizer(transcriber.text)
-                
+
                 expected_txt = None
                 try:
                     expected_txt = normalizer(target_dict[input_file.name])

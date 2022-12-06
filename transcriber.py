@@ -3,6 +3,8 @@ Module that handle a transcription
 The class also handles correctly the loading of a fine-tuned model (HF)
 see also match_layers
 
+# some inspiration from https://github.com/hayabhay/whisper-ui
+
 v2: more clean separation between frontend and backend
 """
 
