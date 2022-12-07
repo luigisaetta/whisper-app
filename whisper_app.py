@@ -17,7 +17,7 @@ from annotated_text import annotated_text
 from whisper import normalizers
 
 # some check to make it more robust to human errors in tests
-from utils import check_file
+from utils import check_file, remove_path
 
 from config import APP_DIR, LOCAL_DIR, LOGO, COMPARE_MODE
 from config import AUDIO_FORMAT_SUPPORTED, LANG_SUPPORTED
@@ -48,12 +48,6 @@ def get_transcriber(model_name):
     return transcriber
 
 
-def remove_path(f_name):
-    f_name = f_name.split("/")[-1]
-
-    return f_name
-
-
 # here we load the csv file containing expected sentences
 @st.experimental_singleton
 def load_target_csv(f_name):
@@ -81,22 +75,25 @@ def get_normalizer():
 
 
 # compare and annotate transcription vs expected text
-def compare(transcribed_text, expected_text):
+# used together annotated_text to highlight words
+def compare_and_annotate(transcribed_text, expected_text):
     color = "#8ef"
     # tokenize to get individual words
-    tokenized = transcribed_text.split(" ")
+    tokenized_text = transcribed_text.split(" ")
 
-    new_word_with_annotation = []
+    new_text_with_annotation = []
 
-    for word in tokenized:
+    for word in tokenized_text:
         word = word.strip()
+        # check if word from transcribed appears in expected text
+        # if not, the word is annotated as in-doubt
         if word not in expected_text:
             # annotate
-            new_word_with_annotation.append((word + " ", "doubt", color))
+            new_text_with_annotation.append((word + " ", "doubt", color))
         else:
-            new_word_with_annotation.append(word + " ")
+            new_text_with_annotation.append(word + " ")
 
-    return new_word_with_annotation
+    return new_text_with_annotation
 
 
 #
@@ -284,15 +281,15 @@ if transcribe:
 
                 # annotate word in transcribed but not in expected
                 if expected_txt is not None:
-                    word_annotated = compare(transcribed_txt, expected_txt)
+                    text_annotated = compare_and_annotate(transcribed_txt, expected_txt)
                 else:
-                    word_annotated = [transcribed_txt]
+                    text_annotated = [transcribed_txt]
 
                 media_col.subheader("Transcribed vs expected text:")
 
                 with media_col:
                     # we need the magical *
-                    annotated_text(*word_annotated)
+                    annotated_text(*text_annotated)
 
                 media_col.write("")
                 media_col.write("Expected text is: ")

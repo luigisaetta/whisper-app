@@ -51,4 +51,13 @@ def check_file(audio_path):
         print()
 
 
+#
 # some general utilities
+#
+
+
+def remove_path(path_name):
+    # from the pathname takes only the file name
+    f_name = path_name.split("/")[-1]
+
+    return f_name
