@@ -1,5 +1,5 @@
 #
-# Author: L. Saetta (2022)
+# Author: L. Saetta (dec. 2022)
 # This utility has been used to create and save the map_dict
 # used to load a custom-trained model into the Whisper codebase
 #
@@ -40,7 +40,7 @@ FINE_TUNED_MODEL = "medium-custom.pt"
 FILE_DICT = "map_dict.pkl"
 
 #
-# functions
+# Functions
 #
 # the following 3 func have been added to make more checks on the matching layers
 # I check that are both from the same module (encoder or decoder)
@@ -73,7 +73,8 @@ def extract_layer_num(key_name):
     return layer_num
 
 
-# check that teh two keys are for layers with the same function (encoder-encoder)
+# check that the two keys are for layers with the same function
+# (both encoder or both decoder)
 # and have the same layer number
 # this way we are super-safe (I think)
 def sanity_check(key1, key2):
@@ -162,9 +163,9 @@ print(f"map_dict saved as: {FILE_DICT}...")
 print()
 
 #
-# In this section we do a test to see if the model can be actually loaded
+# In this section we do a test to see if a custom trained model can be actually loaded
 #
-print("Test if it works...")
+print("Test if a custom trained model can be loaded...")
 print()
 
 # loading with match keys
@@ -199,6 +200,7 @@ for k in tqdm(map_dict.keys()):
 msg_err = f"Rebuild state dict failed, {n_except} pick failed"
 assert n_except == 0, msg_err
 
+# if we arrive here, no exception in the above loop
 print()
 print("Loading the final model...")
 model.load_state_dict(new_state_dict)
