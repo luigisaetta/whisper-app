@@ -2,7 +2,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 
-This repository contains all the work I have done (and I'm doing) in developing a web app for **Speech-to-text**, based on [OpenAI Whisper](https://github.com/openai/whisper)
+This repository contains all the work I have done (and I'm doing) in developing a web app for **Speech-to-Text**, 
+based on [OpenAI Whisper](https://github.com/openai/whisper)
 
 ## Updates
 * 24/11/2022: **no need** anymore to change the Whisper codebase to load the custom model
@@ -27,7 +28,7 @@ You can find some more information on this utility in the **Wiki**.
 
 ## Libraries used
 * Torch
-* HF Transformers
+* Hugging Face Transformers
 * OpenAI Whisper
 * Streamlit
 * st-annotated-text
