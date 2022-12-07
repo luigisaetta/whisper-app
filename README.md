@@ -15,7 +15,7 @@ This repository contains all the work I have done (and I'm doing) in developing 
 * supported models: medium, large (vanilla) and medium for custom
 
 ## Utility
-* match_layers
+* [match_layers](https://github.com/luigisaetta/whisper-app/blob/main/match_layers.py)
 
 One common use case could be that we're **fine-tuning** a Whisper model, for example to have higher accuracy on a special domain's language.
 
