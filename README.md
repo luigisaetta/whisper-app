@@ -6,8 +6,10 @@ This repository contains all the work I have done (and I'm doing) in developing 
 based on [OpenAI Whisper](https://github.com/openai/whisper)
 
 ## Updates
-* 24/11/2022: **no need** anymore to change the Whisper codebase to load the custom model
+* 08/12/2022: added Notebook to explain inner working of match_layers.py
 * 25/11/2022: clean separation between frontend and backend
+* 24/11/2022: **no need** anymore to change the Whisper codebase to load the custom model
+
 
 ## Features
 * You can load and use a **custom trained model**, using HF Transformers
@@ -25,6 +27,9 @@ The fine tuning can be done using **HF Transformers**, using the approach descri
 In this case, the utility can be used to match and show how to load the custom tuned model in **Whisper codebase**.
 
 You can find some more information on this utility in the **Wiki**.
+
+I have also added a [Notebook](https://github.com/luigisaetta/whisper-app/blob/main/match_layers.ipynb) that does the matching and enables you to explore, step-by-step, how the matching is done
+(for example having a look at the names of the layers matched). 
 
 ## Libraries used
 * Torch
